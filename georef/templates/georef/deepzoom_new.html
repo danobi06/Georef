@@ -1,0 +1,10 @@
+<h1> New DeepZoom Image</h1>
+<div>
+    <form action="" method=post enctype="multipart/form-data">{% csrf_token%}
+        <fieldset>
+            {{ form }}
+        </fieldset>
+        <input type="submit" value="Continue" name="continue" class="button"/>
+        <input type="submit" value="Cancel" name="cancel" class="button"/>
+    </form>
+</div>
