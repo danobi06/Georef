@@ -1,0 +1,94 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Geref Window</title>
+</head>
+<body>
+	<div id="allWrap">
+
+		<div id="rightWrap">
+			<p1>Image Manipulation Tools</p1>
+		</br> </br>
+		<div id="menuButtons">
+			<button type="button" id="tagpoint">Add Tagpoint</button>
+		</div>
+	</div>
+	<div id="leftWrap">
+            <h1>GeoRef Window upload: {{model_inst.name}}</h1>
+		<div id="slider" style="width:800px"></div>
+                <div id="{{model_inst.name}}" style="width: 800px; height: 600px;"></div>
+                <script src="{% static "georef/openseadragon/openseadragon.min.js" %}"></script>
+		<link href="http://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="{% static "georef/style.css" %}">
+		<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+		<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+		<script type="text/javascript">
+                        
+                        OpenSeadragon.setString("Tooltips.PreviousPage", "Original");
+                        OpenSeadragon.setString("Tooltips.NextPage","Enhanced");
+			var viewer = OpenSeadragon({
+                                id:            "{{model_inst.name}}",
+                                prefixUrl:     "{% static "georef/openseadragon/images/" %}",
+                                tileSources: ["/media/deepzoom_images/{{model_inst.name}}/{{model_inst.name}}.dzi", //orginal
+                                "/media/deepzoom_images/{{model_inst_enh.name}}/{{model_inst_enh.name}}.dzi"], //enhanced
+                                sequenceMode: true,
+                                preserveViewport: true,    
+
+			});
+			$("#slider").slider({
+				min: -180,
+				max: 180,
+				slide: function(event, ui) {
+					viewer.viewport.setRotation(ui.value);
+				}
+			});
+			var addTagPointOnClick;
+			var tagpoints = [];
+			$("#rightWrap").on("click", "#tagpoint", function(){
+				addTagPointOnClick=true;
+				document.getElementById("leftWrap").style.cursor="pointer";
+			})
+			viewer.addHandler('canvas-click', function(event) {
+				var webPoint = event.position;
+				var viewportPoint = viewer.viewport.pointFromPixel(webPoint);
+				var imagePoint = viewer.viewport.viewportToImageCoordinates(viewportPoint);
+
+				if (addTagPointOnClick==true) {
+					console.log(/*webPoint.toString(), */viewportPoint.toString(), imagePoint.toString() + "     addTagPointOnClick is TRUE");
+					var img = document.createElement("img");
+					var tagpointNumber = document.createElement("p1");
+                                        img.src = "{% static 'georef/openseadragon/images/markerSquare.png' %}";
+					tagpointNumber.innerHTML=(tagpoints.length+1);
+					//viewer.addOverlay(img, viewportPoint, "TOP_LEFT");
+					viewer.addOverlay({
+						element: img,
+						location: viewportPoint,
+						rotationMode: OpenSeadragon.OverlayRotationMode.NO_ROTATION
+					});
+					viewer.addOverlay({
+						element: tagpointNumber, 
+						location: viewportPoint,
+						rotationMode: OpenSeadragon.OverlayRotationMode.NO_ROTATION
+					});
+					tagpoints.push(imagePoint.toString());
+					//for(i=0; i<tagpoints.length; i++) {
+					//div.innerHTML=div.innerHTML + tagpoints[tagpoints.length-1];
+					$("#rightWrap").append("Tagpoint #" + tagpoints.length + " is at      " + tagpoints[tagpoints.length-1] + "</br>");
+					console.log("reached");
+					//viewer.addOverlay(imagePoint.toString(), viewportPoint, "TOP_LEFT");
+					addTagPointOnClick=false;
+					document.getElementById("leftWrap").style.cursor="auto";
+				}else{
+				//do nothing
+				console.log(/*webPoint.toString(), */viewportPoint.toString(), imagePoint.toString() + "     addTagPointOnClick is FALSE");
+			}
+		});
+	</script>
+</div>
+</div>
+</body>
+</html>
+

@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -120,12 +121,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/geref/static/georef/' #location where static files are served 
-STATIC_ROOT = 'webdev_django/static/' #locaion where all static files are gathered during development
-MEDIA_ROOT = 'webdev_django/media/' #where uploaded files are stored
-MEDIA_URL = 'webdev_django/media/'  #where media should be served from
+STATIC_URL = '/static/' #handle to access static files 
+STATIC_ROOT = os.path.join(BASE_DIR,"georef/static/") #locaion where all static files are gathered during development
+MEDIA_URL = '/media/'  #handle to access media
+MEDIA_ROOT = os.path.join(BASE_DIR, "georef/media/") #where uploaded files are stored
 UPLOADEDIMAGE_ROOT = 'uploaded_images'
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
