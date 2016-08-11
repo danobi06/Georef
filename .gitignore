@@ -1,0 +1,2 @@
+#ignore .ingore all files ending in .pyc
+*.pyc
