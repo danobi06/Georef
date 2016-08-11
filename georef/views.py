@@ -2,7 +2,6 @@ import os
 import operator
 from PIL import Image
 from django.conf import settings
-from django.core.files import File
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from deepzoom.models import DeepZoom, UploadedImage 
@@ -31,6 +30,7 @@ def index(request):
         #else request was a save
         form = UploadedImageForm(request.POST, request.FILES)
         if form.is_valid():
+            print 'valid'
             model_inst = form.save() #saves form
             #change fields for enhanced deepzoom
             model_inst_enh = MyImage(uploaded_image = model_inst.uploaded_image.path, name = model_inst.name + '_enh', mission = model_inst.mission + '_enh'
@@ -41,12 +41,14 @@ def index(request):
             model_inst_enh.create_deepzoom_image() # creates deepzoom for enhancement of tiles
 
             #apply autoenhanced to each tile in deepzoom
-            tile_path = settings.MEDIA_ROOT + "/deepzoom_images"+ model_inst_enh.name +"/"+ model_inst_enh.name + "_files" 
+            tile_path = settings.MEDIA_ROOT + "deepzoom_images/"+ model_inst_enh.name +"/"+ model_inst_enh.name + "_files" 
+            print tile_path
+            for root, dirs, tiles in os.walk(tile_path):
+                for tile in tiles: # we want to enhance each tile in the list of tiles
+                   # print os.path.join(root, tile)
+                    enhanced_image = autoenhance(Image.open(os.path.join(root, tile)))
+                    enhanced_image.save(tile)
 
-            for root, dirs, img in os.walk(tile_path):
-                enhanced_image = autoenhance(File(open(img)))
-                enhanced_image.save(img)
-            #return render(request, 'georef/viewer.html', {'model_inst': model_inst, 'model_inst_enh': model_inst_enh})
             return redirect('/georef/viewer/%s/' % model_inst.name) 
     #form with no data
     form = UploadedImageForm() 
